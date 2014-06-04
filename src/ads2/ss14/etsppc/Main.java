@@ -42,9 +42,6 @@ public class Main {
 	/** Debug flag f&uuml;r zus&auml;tzliche Debug Ausgaben */
 	private static boolean debug = false;
 	
-	/** Der Schwellwert f&uuml;r die gelbe Schranke */
-	private static Integer threshold;
-
 	/**
 	 * Liest die Daten einer Testinstanz ein und &uuml;bergibt sie an die
 	 * entsprechenden Methoden der MKP Implementierung.
@@ -152,11 +149,12 @@ public class Main {
 		double upper_bound = sol.getUpperBound();
 
 		//check tour
-		boolean fullTour = solution.containsAll(originalInstance.getAllLocations().values()) && originalInstance.getAllLocations().values().containsAll(solution);
-		
+		boolean fullTour = solution.size() == originalInstance.getAllLocations().size() && solution.containsAll(originalInstance.getAllLocations().values()) && originalInstance.getAllLocations().values().containsAll(solution);
+			
 		if(!fullTour) {
-			bailOut("Die Tour ist nicht vollstaendig oder enthaelt unbekannte Locations!");
+			bailOut("Die Tour ist nicht vollstaendig, enthaelt unbekannte, oder zuviele, Locations!");
 		}
+				
 		
 		List<Integer> solutionCityIds = new ArrayList<Integer>(solution.size());
 		for(Location c : solution) {
@@ -191,7 +189,7 @@ public class Main {
 			bailOut("zu schlechte Loesung: Ihr Ergebnis " + upper_bound
 					+ " liegt ueber dem Schwellwert (" + originalInstance.getThreshold() + ")");
 
-		msg.append("Schwellwert = " + threshold + "." + " Ihr Ergebnis ist OK mit " +
+		msg.append("Schwellwert = " + originalInstance.getThreshold() + "." + " Ihr Ergebnis ist OK mit " +
 				"\n" + upper_bound);
 
 		if (test)

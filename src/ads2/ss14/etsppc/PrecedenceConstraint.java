@@ -21,4 +21,18 @@ public class PrecedenceConstraint {
 	public int getSecond() {
 		return second;
 	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if(obj.getClass() == PrecedenceConstraint.class) {
+			PrecedenceConstraint other = (PrecedenceConstraint) obj;
+			return first == other.first && second == other.second;
+		}
+		return false;
+	}
+	
+	@Override
+	public int hashCode() {
+		return 10*first + second;
+	}
 }
