@@ -76,7 +76,7 @@ public class Main {
 		try {
 			oldsm = System.getSecurityManager();
 			SecurityManager sm = new ADS1SecurityManager();
-			System.setSecurityManager(sm);
+//			System.setSecurityManager(sm);
 		} catch (SecurityException e) {
 			bailOut("Error: could not set security manager: " + e);
 		}
