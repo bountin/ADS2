@@ -52,13 +52,19 @@ public class ETSPPC extends AbstractETSPPC {
 		}
 
 		// Choose the Nearest Neighbour first
+		final Location lastLocation;
+		if (visited.size() == 0) {
+			lastLocation = null;
+		} else {
+			lastLocation = visited.get(visited.size() - 1);
+		}
 		Collections.sort(remainingLocations, new Comparator<Location>() {
 			@Override
 			public int compare(Location l1, Location l2) {
-				if (visited.size() == 0) return 0;
+				if (lastLocation == null) return 0;
 
-				Double l1Cost = visited.get(visited.size() - 1).distanceTo(l1);
-				Double l2Cost = visited.get(visited.size() - 1).distanceTo(l2);
+				Double l1Cost = lastLocation.distanceTo(l1);
+				Double l2Cost = lastLocation.distanceTo(l2);
 
 				return l1Cost.compareTo(l2Cost);
 			}
@@ -67,7 +73,6 @@ public class ETSPPC extends AbstractETSPPC {
 		for (Location nextLocation: remainingLocations) {
 			ArrayList<Location> newVisited = new ArrayList<Location>(visited.size());
 			for (Location l: visited) newVisited.add(l);
-
 			newVisited.add(nextLocation);
 
 			BnBSolution bestSolution = getBestSolution();
