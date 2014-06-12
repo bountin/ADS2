@@ -8,10 +8,20 @@ import java.util.*;
  */
 public class ETSPPC extends AbstractETSPPC {
 
-	ETSPPCInstance instance;
+	private final ETSPPCInstance instance;
+	private final Map<Integer, Location> allLocationsMap;
+	private final Collection<Location> allLocationsList;
+	private final int allLocationsSize;
+	private final List<PrecedenceConstraint> constraints;
+
+	private double upperBound = Double.MAX_VALUE;
 
 	public ETSPPC(ETSPPCInstance instance) {
 		this.instance = instance;
+		this.allLocationsMap = instance.getAllLocations();
+		this.allLocationsList = instance.getAllLocations().values();
+		this.allLocationsSize = allLocationsMap.size();
+		this.constraints = instance.getConstraints();
 	}
 
 	/**
@@ -30,24 +40,26 @@ public class ETSPPC extends AbstractETSPPC {
 	}
 
 	private void search(final ArrayList<Location> visited) {
-		if (visited.size() == instance.getAllLocations().size()) {
-			setSolution(Main.calcObjectiveValue(visited), visited);
+		if (visited.size() == allLocationsSize) {
+			double value = Main.calcObjectiveValue(visited);
+			setSolution(value, visited);
+			upperBound = value;
 			return;
 		}
 
 		ArrayList<Location> remainingLocations = new ArrayList<Location>();
 
 		// Filter already visited locations
-		for (Location l: instance.getAllLocations().values()) {
+		for (Location l: allLocationsList) {
 			if (! visited.contains(l)) {
 				remainingLocations.add(l);
 			}
 		}
 
 		// Prune locations that are not reachable because of constraints
-		for(PrecedenceConstraint pc : instance.getConstraints()) {
-			if (! visited.contains(instance.getAllLocations().get(pc.getFirst()))) {
-				remainingLocations.remove(instance.getAllLocations().get(pc.getSecond()));
+		for (PrecedenceConstraint pc : constraints) {
+			if (! visited.contains(allLocationsMap.get(pc.getFirst()))) {
+				remainingLocations.remove(allLocationsMap.get(pc.getSecond()));
 			}
 		}
 
@@ -75,8 +87,7 @@ public class ETSPPC extends AbstractETSPPC {
 			for (Location l: visited) newVisited.add(l);
 			newVisited.add(nextLocation);
 
-			BnBSolution bestSolution = getBestSolution();
-			if (bestSolution == null || bestSolution.getUpperBound() > Main.calcObjectiveValue(newVisited)) {
+			if (upperBound > Main.calcObjectiveValue(newVisited)) {
 				search(newVisited);
 			}
 		}
