@@ -16,12 +16,34 @@ public class ETSPPC extends AbstractETSPPC {
 
 	private double upperBound = Double.MAX_VALUE;
 
+//	private final double[][] distanceMatrix;
+
+	private double minimalDistance = Double.POSITIVE_INFINITY;
+
 	public ETSPPC(ETSPPCInstance instance) {
 		this.instance = instance;
 		this.allLocationsMap = instance.getAllLocations();
 		this.allLocationsList = instance.getAllLocations().values();
 		this.allLocationsSize = allLocationsMap.size();
 		this.constraints = instance.getConstraints();
+
+//		distanceMatrix = new double[allLocationsSize][allLocationsSize];
+		for (Location l1: allLocationsList) {
+			int l1id = l1.getCityId() - 1;
+			for (Location l2: allLocationsList) {
+				int l2id = l2.getCityId() - 1;
+
+				if (l1id == l2id) {
+//					distanceMatrix[l1id][l2id] = Double.POSITIVE_INFINITY;
+				} else {
+					double distance = l1.distanceTo(l2);
+//					distanceMatrix[l1id][l2id] = distance;
+					if (distance < minimalDistance) {
+						minimalDistance = distance;
+					}
+				}
+			}
+		}
 	}
 
 	/**
@@ -47,7 +69,7 @@ public class ETSPPC extends AbstractETSPPC {
 			return;
 		}
 
-		ArrayList<Location> remainingLocations = new ArrayList<Location>();
+		ArrayList<Location> remainingLocations = new ArrayList<Location>(allLocationsSize - visited.size());
 
 		// Filter already visited locations
 		for (Location l: allLocationsList) {
@@ -83,11 +105,13 @@ public class ETSPPC extends AbstractETSPPC {
 		});
 
 		for (Location nextLocation: remainingLocations) {
-			ArrayList<Location> newVisited = new ArrayList<Location>(visited.size());
-			for (Location l: visited) newVisited.add(l);
+			ArrayList<Location> newVisited = new ArrayList<Location>(visited.size() + 1);
+			newVisited.addAll(visited);
 			newVisited.add(nextLocation);
 
-			if (upperBound > Main.calcObjectiveValue(newVisited)) {
+			double lowerBound = Main.calcObjectiveValue(newVisited);
+			lowerBound += (allLocationsSize - newVisited.size()) * minimalDistance;
+			if (lowerBound < upperBound) {
 				search(newVisited);
 			}
 		}
